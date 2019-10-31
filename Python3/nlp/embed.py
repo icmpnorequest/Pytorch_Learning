@@ -1,3 +1,9 @@
+# coding = utf8
+"""
+@author: Yantong Lai
+@date: 2019.10.30
+"""
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
