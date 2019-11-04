@@ -18,7 +18,7 @@ torch.manual_seed(RANDOM_SEED)
 VOCABULARY_SIZE = 20000
 LEARNING_RATE = 1e-4
 BATCH_SIZE = 128
-NUM_EPOCHS = 15
+NUM_EPOCHS = 2
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 BIDIRECTIONAL = True
 
@@ -141,7 +141,7 @@ for epoch in range(NUM_EPOCHS):
         optimizer.step()
 
         ### LOGGING
-        if not batch_idx % 50:
+        if not batch_idx % 10:
             print(f'Epoch: {epoch + 1:03d}/{NUM_EPOCHS:03d} | '
                   f'Batch {batch_idx:03d}/{len(train_loader):03d} | '
                   f'Cost: {cost:.4f}')
