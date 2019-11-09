@@ -22,9 +22,8 @@ print(tokens)
 
 
 ########## Field ##########
-TEXT = data.Field()
+TEXT = data.Field(tokenize='spacy')
 LABELS = data.LabelField()
-
 print("TEXT = {}".format(TEXT))
 print("LABELS = {}".format(LABELS))
 
