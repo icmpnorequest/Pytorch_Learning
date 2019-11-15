@@ -14,6 +14,7 @@ dataset_path = "../../data/aclImdb/"
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+BATCH_SIZE = 64
 
 ########## get_tokenizer ##########
 tokenizer = get_tokenizer("basic_english")
@@ -22,24 +23,29 @@ print(tokens)
 
 
 ########## Field ##########
-TEXT = data.Field(tokenize='spacy')
+# TEXT = data.Field(tokenize='spacy')
+TEXT = data.Field(include_lengths=True)
 LABELS = data.LabelField()
 print("TEXT = {}".format(TEXT))
 print("LABELS = {}".format(LABELS))
 
 
 ########## TabularDataset ##########
+"""
 train, test = data.TabularDataset.splits(path=dataset_path,
                                          train="train.tsv",
                                          test="test.tsv",
                                          fields=[('labels', LABELS), ('text', TEXT)],
                                          format="tsv")
+"""
+train, test = datasets.IMDB.splits(TEXT, LABELS)
 print("train = {}".format(train))
 print("test = {}".format(test))
 
 
 ########## BucketIterator ##########
-train_iter, test_iter = data.BucketIterator.splits((train, test), batch_sizes=(16, 256, 256), sort_key=lambda x: len(x.text), device=device)
+# train_iter, test_iter = data.BucketIterator.splits((train, test), batch_sizes=(16, 256, 256), sort_key=lambda x: len(x.text), device=device)
+train_iter, test_iter = data.BucketIterator.splits((train, test), batch_size=BATCH_SIZE, sort_key=lambda x: len(x.text), device=device, sort_within_batch=True)
 print("train_iter = {}".format(train_iter))
 print("test_iter = {}".format(test_iter))
 
@@ -55,5 +61,7 @@ print(vars(train[0]))
 ######## Batch ##########
 print('Train:')
 for batch in train_iter:
-    print(batch)
-
+    print("batch = {}".format(batch))
+    text, text_lengths = batch.text
+    print("text = {}".format(text))
+    print("text_lengths = {}".format(text_lengths))
