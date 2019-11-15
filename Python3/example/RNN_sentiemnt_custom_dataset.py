@@ -162,121 +162,15 @@ print("The model has {} trainable parameters".format(count_parameters(model)))
 ####################################
 #          Train the Model         #
 ####################################
+# Loss function and optimizer
 criterion = nn.CrossEntropyLoss().to(device)
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 model = model.to(device)
 
-def binary_accuracy(preds, y):
 
-    correct_pred = 0
-
-    # rounded_preds = torch.round(torch.sigmoid(preds))
-    predicted_labels = (torch.sigmoid(preds)).long()
-    print("predicted_labels = {}".format(predicted_labels))
-    correct_pred += (predicted_labels == y.long()).sum()
-
-    # correct = (rounded_preds == y).float()
-    # acc = correct.sum() / len(correct)
-
-    return correct_pred
-
-"""
-def train(model, iterator, optimizer, criterion):
-
-    epoch_loss = 0
-    epoch_acc = 0
-
-    correct_pred = 0
-
-    model.train()
-
-    for batch in iterator:
-
-        optimizer.zero_grad()
-        text, text_lengths = batch.text
-        # predictions = model(text, text_lengths).squeeze(1)
-        predictions = model(text, text_lengths)
-        predicted_labels = (torch.sigmoid(predictions)).long().squeeze()
-        print("predicted_labels = {}".format(predicted_labels))
-        print("predicted_labels.size = {}".format(predicted_labels.size()))
-        # (64, 2) => predicted_labels.size: [Batch size, Output_dim]
-
-        print("batch.labels = {}".format(batch.labels))
-        print("batch.labels.size() = {}".format(batch.labels.size()))
-
-        # correct_pred += (predicted_labels == batch.labels.long()).sum()
-        # print("correct_pred = {}".format(correct_pred))
-
-
-
-        loss = criterion(predictions, batch.labels)
-
-        # acc = binary_accuracy(predictions, batch.labels)
-
-        loss.backward()
-        optimizer.step()
-
-        epoch_loss += loss.item()
-        # epoch_acc += acc.item()
-
-    # return epoch_loss / len(iterator), epoch_acc / len(iterator)
-    return epoch_loss / len(iterator)
-
-
-def evaluate(model, iterator, criterion):
-
-    epoch_loss = epoch_acc = 0
-    model.eval()
-
-    with torch.no_grad():
-        for batch in iterator:
-            text, text_lengths = batch.text
-            predictions = model(text, text_lengths)
-            loss = criterion(predictions, batch.labels)
-            acc = binary_accuracy(predictions, batch.labels)
-
-            epoch_loss += loss.item()
-            epoch_acc += acc.item()
-
-    return epoch_loss / len(iterator), epoch_acc / len(iterator)
-
-"""
-
-
-
-
-"""
-for batch in iterator:
-
-        optimizer.zero_grad()
-        text, text_lengths = batch.text
-        # predictions = model(text, text_lengths).squeeze(1)
-        predictions = model(text, text_lengths)
-        predicted_labels = (torch.sigmoid(predictions)).long().squeeze()
-        print("predicted_labels = {}".format(predicted_labels))
-        print("predicted_labels.size = {}".format(predicted_labels.size()))
-        # (64, 2) => predicted_labels.size: [Batch size, Output_dim]
-
-        print("batch.labels = {}".format(batch.labels))
-        print("batch.labels.size() = {}".format(batch.labels.size()))
-
-        # correct_pred += (predicted_labels == batch.labels.long()).sum()
-        # print("correct_pred = {}".format(correct_pred))
-
-
-
-        loss = criterion(predictions, batch.labels)
-
-        # acc = binary_accuracy(predictions, batch.labels)
-
-        loss.backward()
-        optimizer.step()
-"""
-
-
-# Train
-NUM_EPOCHS = 3
+########## Train ##########
+NUM_EPOCHS = 10
 total_step = len(train_iter)
 for epoch in range(NUM_EPOCHS):
     total_loss = []
@@ -303,3 +197,26 @@ for epoch in range(NUM_EPOCHS):
                   .format(epoch + 1, NUM_EPOCHS, i + 1, total_step, loss.item()))
 
     print("total_loss = {}\n".format(total_loss))
+
+
+########## Test ##########
+model.eval()
+total_correct = 0
+avg_loss = 0.0
+for i, batch in enumerate(test_iter):
+    text, text_lengths = batch.text
+
+    y = batch.labels
+
+    # Forward pass
+    y_pred = model(text, text_lengths)
+    loss = criterion(y_pred, y)
+    avg_loss += loss.item()
+
+    # _, pred = torch.max(output.data, 1)
+    pred = torch.argmax(y_pred.data, dim=1)
+    total_correct += (pred == y).sum().item()
+
+avg_loss = avg_loss / len(test_data)
+print("Test Avg. Loss: {}, Accuracy: {}%"
+      .format(avg_loss, 100 * total_correct / len(test_data)))
