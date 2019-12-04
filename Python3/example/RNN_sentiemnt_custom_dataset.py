@@ -33,7 +33,6 @@ BATCH_SIZE = 64
 LEARNING_RATE = 1e-3
 
 
-
 ####################################
 #          Preparing Data          #
 ####################################
@@ -68,14 +67,16 @@ train_iter, valid_iter, test_iter = data.BucketIterator.splits((train_data, vali
                                                                device=device,
                                                                sort_key=lambda x: len(x.text))
 # 5. Build vocab
-TEXT.build_vocab(train_data)
+# TEXT.build_vocab(train_data)
 # unk_init=torch.Tensor.normal_)
+# LABELS.build_vocab(train_data)
+# print("vars(train_data[0]) = ", vars(train_data[0]))
+
+# 5.1 (Optional) If build vocab with pre-trained word embedding vectors
+TEXT.build_vocab(train_data, vectors="glove.6B.100d")
 LABELS.build_vocab(train_data)
 print("vars(train_data[0]) = ", vars(train_data[0]))
 
-# 5.1 (Optional) If build vocab with pre-trained word embedding vectors
-# TEXT.build_vocab(train_data,
-#                  vectors="glove.6B.100d")
 
 
 ####################################
@@ -133,7 +134,7 @@ class RNN(nn.Module):
 INPUT_DIM = len(TEXT.vocab)
 EMBEDDING_DIM = 100
 HIDDEN_DIM = 256
-OUTPUT_DIM = len(LABELS.vocab)
+OUTPUT_DIM = 2
 N_LAYERS = 2
 BIDIRECTIONAL = True
 DROUPOUT = 0.5
